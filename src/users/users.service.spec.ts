@@ -60,10 +60,7 @@ describe("Users Service test", () => {
 
     it("Should return an error", async () => {
       try {
-        const USER = await usersService.getUser(
-          "oscarlopez75x@gmail.com",
-          "brand_two",
-        );
+        await usersService.getUser("oscarlopez75x@gmail.com", "brand_two");
       } catch (error) {
         expect(error.message).toEqual(
           "Not able to get user with email oscarlopez75x@gmail.com at brand brand_two Error: no elements in sequence",
