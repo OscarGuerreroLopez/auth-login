@@ -23,8 +23,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
       request.body.password = "*********";
     }
 
-    console.log(exception.message);
-
     if (exception instanceof HttpException) {
       status = 400;
 
