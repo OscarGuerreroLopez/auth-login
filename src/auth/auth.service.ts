@@ -34,7 +34,15 @@ export class AuthService {
       );
     }
 
-    await this.lockService.getWrongPassword(User.iduser!, brandId, User.email!);
+    try {
+      await this.lockService.getWrongPassword(
+        User.iduser!,
+        brandId,
+        User.email!,
+      );
+    } catch (error) {
+      throw new HttpException(error, 403);
+    }
 
     if (User.status !== "active") {
       const Activity: CreateActivity = {
@@ -43,9 +51,13 @@ export class AuthService {
         email: User.email!,
         brandId,
       };
+
       this.activityService.createActivity(Activity);
+
       throw new HttpException(
-        `User with email ${User.email} ${brandId} is not active in the system`,
+        `User with email ${
+          User.email
+        } ${brandId} is not active in the system status ${User.status}`,
         401,
       );
     }
