@@ -20,6 +20,10 @@ export class UsersService {
 
       return Result;
     } catch (error) {
+      if (error.name === "TimeoutError") {
+        throw error;
+      }
+
       throw new HttpException(
         `Not able to get user with email ${email} at brand ${brandId} Error: ${
           error.message
