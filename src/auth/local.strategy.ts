@@ -16,10 +16,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   async validate(request: Request): Promise<User> {
     await LoginSchema.validateAsync(request.body);
 
-    if (!request.body.hasOwnProperty("brandId")) {
-      throw new HttpException("Missing Brand Id in the body", 401);
-    }
-
     const RECAPTCHA = await GetRecaptcha(
       request.body.recaptcha,
       request.clientIp!,
@@ -28,14 +24,13 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     if (!RECAPTCHA) {
       throw new HttpException("User did not pass recaptcha", 401);
     }
-    const brandId: string = request.body.brandId;
 
-    const User: User = await this.authService.validateUser(
+    const user: User = await this.authService.validateUser(
       request.body.email,
       request.body.password,
-      brandId,
+      request.body.brandId,
     );
 
-    return User;
+    return user;
   }
 }

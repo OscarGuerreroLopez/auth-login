@@ -1,5 +1,4 @@
 import * as winston from "winston";
-import "winston-daily-rotate-file";
 
 const { combine, timestamp, prettyPrint } = winston.format;
 

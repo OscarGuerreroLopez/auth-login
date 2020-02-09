@@ -1,7 +1,14 @@
-import { ExceptionFilter, Catch, ArgumentsHost } from "@nestjs/common";
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  HttpStatus,
+} from "@nestjs/common";
+
 import { Request, Response } from "express";
 
-import { HandleError } from "./handleError";
+import { logger } from "../logging/logger";
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -10,14 +17,25 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
+    let status: number;
+
     if (request.body.password) {
       request.body.password = "*********";
     }
 
-    HandleError(exception, request);
+    console.log(exception.message);
 
-    response.status(500).json({
-      message: "There was a problem, please contact support",
+    if (exception instanceof HttpException) {
+      status = 400;
+
+      logger.warn(exception.message, { body: request.body, exception });
+    } else {
+      logger.error(exception.message, { body: request.body, exception });
+      status = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+
+    response.status(status).json({
+      message: "We can put whatever we want here, real error is logged",
     });
   }
 }

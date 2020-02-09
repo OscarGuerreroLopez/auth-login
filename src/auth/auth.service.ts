@@ -25,13 +25,7 @@ export class AuthService {
     // tslint:disable-next-line:no-shadowed-variable
     const User: User = await this.usersService.getUser(email, brandId);
 
-    // Not really necessary cause if no user, users service should throw an error, but just in case
-    if (!User) {
-      throw new HttpException(
-        `User with email ${email} ${brandId} not found`,
-        401,
-      );
-    } else if (!User.password) {
+    if (!User.password) {
       throw new HttpException(
         `User with email ${
           User.email
