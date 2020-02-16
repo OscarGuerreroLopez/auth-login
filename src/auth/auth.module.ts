@@ -13,7 +13,7 @@ import { LockService } from "./lock.service";
     PassportModule,
     JwtModule.register({
       secret: EnvVars.JWT_SECRET,
-      signOptions: { expiresIn: "60s" },
+      signOptions: { expiresIn: "1h" },
     }),
   ],
   providers: [AuthService, LocalStrategy, LockService],

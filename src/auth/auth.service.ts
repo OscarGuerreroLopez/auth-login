@@ -6,6 +6,15 @@ import { JwtService } from "@nestjs/jwt";
 import { User, CreateActivity, ActivityType } from "auth-modules";
 import { LockService } from "./lock.service";
 
+interface DataBody {
+  email: string;
+  password: string;
+  recaptcha: string;
+  brandId: string;
+  ip: string;
+  agent: string;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -15,21 +24,20 @@ export class AuthService {
     private readonly lockService: LockService,
   ) {}
 
-  async validateUser(
-    email: string,
-    pass: string,
-    brandId: string,
-  ): Promise<User> {
+  async validateUser(data: DataBody): Promise<User> {
     let valid: boolean = false;
 
     // tslint:disable-next-line:no-shadowed-variable
-    const User: User = await this.usersService.getUser(email, brandId);
+    const User: User = await this.usersService.getUser(
+      data.email,
+      data.brandId,
+    );
 
     if (!User.password) {
       throw new HttpException(
-        `User with email ${
-          User.email
-        } ${brandId} does not have a password in the system`,
+        `User with email ${User.email} ${
+          data.brandId
+        } does not have a password in the system`,
         401,
       );
     }
@@ -37,7 +45,7 @@ export class AuthService {
     try {
       await this.lockService.getWrongPassword(
         User.iduser!,
-        brandId,
+        data.brandId,
         User.email!,
       );
     } catch (error) {
@@ -49,38 +57,58 @@ export class AuthService {
         iduser: User.iduser!,
         type: ActivityType.USER_NOT_ACTIVE,
         email: User.email!,
-        brandId,
+        brandId: data.brandId,
       };
 
       this.activityService.createActivity(Activity);
 
       throw new HttpException(
-        `User with email ${
-          User.email
-        } ${brandId} is not active in the system status ${User.status}`,
+        `User with email ${User.email} ${
+          data.brandId
+        } is not active in the system status ${User.status}`,
         401,
       );
     }
 
-    valid = await bcrypt.compare(pass, User.password);
+    valid = await bcrypt.compare(data.password, User.password);
 
     if (!valid) {
       const Activity: CreateActivity = {
         iduser: User.iduser!,
         type: ActivityType.USER_WRONG_PASSWORD,
         email: User.email!,
-        brandId,
+        brandId: data.brandId,
       };
 
       this.activityService.createActivity(Activity);
 
-      this.lockService.wrongPassword(User.iduser!, brandId);
+      this.lockService.wrongPassword(User.iduser!, data.brandId);
 
       throw new HttpException(
-        `Wrong password for ${User.email} at ${brandId}`,
+        `Wrong password for ${User.email} at ${data.brandId}`,
         401,
       );
     }
+    // {
+    //   email: 'oscar.computer.guy@gmail.com',
+    //   password: 'Abc123!@',
+    //   recaptcha: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+    //   brandId: 'brand_three',
+    //   ip: '::1',
+    //   agent: 'PostmanRuntime/7.22.0'
+    // }
+    const payload = {
+      username: User.email || "",
+      sub: User.iduser || 0,
+      brand: data.brandId || "",
+      role: User.role || "",
+      status: User.status,
+      ip: data.ip,
+      agent: data.agent,
+    };
+
+    this.activityService.createRefreshToken(payload);
+
     const { password, ...result } = User;
     return result;
   }

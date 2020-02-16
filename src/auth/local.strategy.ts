@@ -25,11 +25,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       throw new HttpException("User did not pass recaptcha", 401);
     }
 
-    const user: User = await this.authService.validateUser(
-      request.body.email,
-      request.body.password,
-      request.body.brandId,
-    );
+    const user: User = await this.authService.validateUser(request.body);
 
     return user;
   }

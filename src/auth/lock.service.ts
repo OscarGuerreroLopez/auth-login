@@ -18,7 +18,7 @@ export class LockService {
     const KEY = `${brandId}.${userId}.failed`;
 
     RedisClient.incr(KEY);
-    RedisClient.expire(KEY, 60); // 5 minutes = 300
+    RedisClient.expire(KEY, 300); // 5 minutes = 300
   }
 
   async getWrongPassword(userId: number, brandId: string, email: string) {
