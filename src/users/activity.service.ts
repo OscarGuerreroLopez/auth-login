@@ -2,16 +2,16 @@ import { Injectable } from "@nestjs/common";
 import Bull = require("bull");
 import { CreateActivity, CreateRefreshToken } from "auth-modules";
 
+const activityQueue = new Bull("activity-queue");
+const refreshTokenQueue = new Bull("refresh-queue");
+
 @Injectable()
 export class ActivityService {
-  activityQueue = new Bull("activity-queue");
-  refreshTokenQueue = new Bull("refresh-queue");
-
   async createActivity(activity: CreateActivity) {
-    this.activityQueue.add(activity);
+    activityQueue.add(activity);
   }
 
   async createRefreshToken(data: CreateRefreshToken) {
-    this.refreshTokenQueue.add(data);
+    refreshTokenQueue.add(data);
   }
 }

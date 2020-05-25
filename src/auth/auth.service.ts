@@ -89,14 +89,7 @@ export class AuthService {
         401,
       );
     }
-    // {
-    //   email: 'oscar.computer.guy@gmail.com',
-    //   password: 'Abc123!@',
-    //   recaptcha: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
-    //   brandId: 'brand_three',
-    //   ip: '::1',
-    //   agent: 'PostmanRuntime/7.22.0'
-    // }
+
     const payload = {
       username: User.email || "",
       sub: User.iduser || 0,
